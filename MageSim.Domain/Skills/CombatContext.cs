@@ -1,0 +1,22 @@
+﻿using MageSim.Domain.Events;
+using MageSim.Domain.States;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace MageSim.Domain.Skills
+{
+    public sealed class CombatContext
+    {
+        public int Mana { get; set; }
+        public bool TargetInRange { get; set; }
+        public bool TargetAlive { get; set; }
+        public MageState State { get; set; } = MageState.Idle;
+
+        public event Action<CombatEvent>? OnEvent;
+        public void Emit(CombatEvent ev) => OnEvent?.Invoke(ev);
+    }
+
+}

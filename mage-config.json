@@ -1,0 +1,38 @@
+{
+  "instances": [
+    {
+      "id": "Mage-A",
+      "tickMs": 140,
+      "skills": [
+        {
+          "name": "Nova",
+          "key": "D1",
+          "cdMs": 15000,
+          "mana": 300,
+          "condition": "alive&range&mana>=300"
+        },
+        {
+          "name": "Meteor",
+          "key": "D2",
+          "cdMs": 8000,
+          "mana": 200,
+          "condition": "alive&range&mana>=200"
+        },
+        {
+          "name": "Inferno",
+          "key": "D3",
+          "cdMs": 5000,
+          "mana": 120,
+          "condition": "alive&range&mana>=120"
+        },
+        {
+          "name": "Blizzard",
+          "key": "D9",
+          "cdMs": 20000,
+          "mana": 250,
+          "condition": "alive&range&mana>=250"
+        }
+      ]
+    }
+  ]
+}
