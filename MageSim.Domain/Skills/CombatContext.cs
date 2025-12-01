@@ -15,8 +15,18 @@ namespace MageSim.Domain.Skills
         public bool TargetAlive { get; set; }
         public MageState State { get; set; } = MageState.Idle;
 
-        public event Action<CombatEvent>? OnEvent;
-        public void Emit(CombatEvent ev) => OnEvent?.Invoke(ev);
+        // Nullable event yerine klasik tanım
+        public event Action<CombatEvent> OnEvent;
+
+        public void Emit(CombatEvent ev)
+        {
+            var handler = OnEvent;
+            if (handler != null)
+            {
+                handler(ev);
+            }
+        }
     }
+
 
 }

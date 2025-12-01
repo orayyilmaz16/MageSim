@@ -42,6 +42,19 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Services\RotationFactory.cs" />
+    <Compile Include="Simulation\Coordinator.cs" />
+    <Compile Include="Simulation\DummyClient.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MageSim.Domain\MageSim.Domain.csproj">
+      <Project>{0427EF67-A9BF-42BF-A7F6-3530D7EB3647}</Project>
+      <Name>MageSim.Domain</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MageSim.Infrastructure\MageSim.Infrastructure.csproj">
+      <Project>{86D6AC0E-4541-4B0E-8748-176E87843A00}</Project>
+      <Name>MageSim.Infrastructure</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

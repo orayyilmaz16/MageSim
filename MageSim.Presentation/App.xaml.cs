@@ -1,22 +1,29 @@
-﻿// MageSim.Presentation/App.xaml.cs
+﻿using MageSim.Application.Simulation;
+using MageSim.Infrastructure.Conditions;
+using MageSim.Infrastructure.Config;
+using MageSim.Infrastructure.Time;
+using MageSim.Presentation.ViewModels;
 using System;
 using System.IO;
 using System.Windows;
 
-public partial class App : Application
+namespace MageSim.Presentation
 {
-    protected override void OnStartup(StartupEventArgs e)
+    public partial class App : System.Windows.Application // Fully qualify Application to avoid ambiguity
     {
-        base.OnStartup(e);
+        protected override void OnStartup(StartupEventArgs e)
+        {
+            base.OnStartup(e);
 
-        var configPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "config", "mage-config.json");
-        var configService = new ConfigService(configPath);
-        var evaluator = new DefaultConditionEvaluator();
-        var clock = new SystemClock();
-        var coord = new Coordinator();
+            var configPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "config", "mage-config.json");
+            var configService = new ConfigService(configPath);
+            var evaluator = new DefaultConditionEvaluator();
+            var clock = new SystemClock();
+            var coord = new Coordinator();
 
-        var vm = new MainViewModel(configService, coord, evaluator, clock);
-        var win = new Views.MainWindow { DataContext = vm };
-        win.Show();
+            var vm = new MainViewModel(configService, coord, evaluator, clock);
+            var win = new MageSim.Presentation.Views.MainWindow { DataContext = vm };
+            win.Show();
+        }
     }
 }
