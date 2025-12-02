@@ -1,20 +1,18 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MageSim.Domain.Events
 {
-    public readonly struct CombatEvent
+    public class CombatEvent
     {
-        public CombatEventType Type { get; }
-        public string Payload { get; }
-        public DateTime Timestamp { get; }
+        public CombatEventType Type { get; set; }
+        public string Payload { get; set; }
+        public DateTime Timestamp { get; set; }
 
         public CombatEvent(CombatEventType type, string payload)
         {
-            Type = type; Payload = payload; Timestamp = DateTime.UtcNow;
+            Type = type;
+            Payload = payload;
+            Timestamp = DateTime.UtcNow;
         }
     }
 

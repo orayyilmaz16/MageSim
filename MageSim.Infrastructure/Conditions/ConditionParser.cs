@@ -1,6 +1,5 @@
 ﻿using MageSim.Domain.Skills;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace MageSim.Infrastructure.Conditions
