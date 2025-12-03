@@ -4,6 +4,7 @@
   </Folder>
   <Folder Name="/src/">
     <Project Path="MageSim.Application/MageSim.Application.csproj" Id="09400ad4-e1df-42fc-bee3-f3877e0bbed3" />
+    <Project Path="MageSim.CLI/MageSim.CLI.csproj" Id="f2cbb235-7171-42c1-867c-98e1e9658410" />
     <Project Path="MageSim.Domain/MageSim.Domain.csproj" Id="0427ef67-a9bf-42bf-a7f6-3530d7eb3647" />
     <Project Path="MageSim.Infrastructure/MageSim.Infrastructure.csproj" Id="86d6ac0e-4541-4b0e-8748-176e87843a00" />
     <Project Path="MageSim.Presentation/MageSim.Presentation.csproj" Id="1baa7cb4-5505-48a0-b741-74a8e8ad7667" />

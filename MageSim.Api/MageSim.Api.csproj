@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>.net10.</TargetFramework>
+	<ImplicitUsings>enable</ImplicitUsings>
+	  <LangVersion>10.0</LangVersion>
+	  <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="10.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MageSim.Application\MageSim.Application.csproj" />
+    <ProjectReference Include="..\MageSim.Infrastructure\MageSim.Infrastructure.csproj" />
+  </ItemGroup>
+
+</Project>
