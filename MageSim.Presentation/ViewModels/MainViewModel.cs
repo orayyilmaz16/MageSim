@@ -13,16 +13,15 @@ namespace MageSim.Presentation.ViewModels
 {
     public sealed class MainViewModel : INotifyPropertyChanged
     {
-        public ObservableCollection<ClientViewModel> Clients { get; }
-            = new ObservableCollection<ClientViewModel>();
-
-        public ObservableCollection<string> Events { get; }
-            = new ObservableCollection<string>();
+        public ObservableCollection<ClientViewModel> Clients { get; } = new ObservableCollection<ClientViewModel>();
+        public ObservableCollection<string> Events { get; } = new ObservableCollection<string>();
 
         public ICommand StartAllCommand { get; }
         public ICommand StopAllCommand { get; }
         public ICommand LoadConfigCommand { get; }
         public ICommand SaveConfigCommand { get; }
+        public ICommand StartKo4FunCommand { get; }
+        public ICommand StopKo4FunCommand { get; }
 
         private readonly ConfigService _config;
         private readonly Coordinator _coord;
@@ -33,7 +32,7 @@ namespace MageSim.Presentation.ViewModels
         public RootConfig Root
         {
             get => _root;
-            set
+            private set
             {
                 if (_root != value)
                 {
@@ -45,51 +44,93 @@ namespace MageSim.Presentation.ViewModels
 
         public MainViewModel(ConfigService config, Coordinator coord, IConditionEvaluator evaluator, IClock clock)
         {
-            _config = config;
-            _coord = coord;
-            _evaluator = evaluator;
-            _clock = clock;
+            _config = config ?? throw new ArgumentNullException(nameof(config));
+            _coord = coord ?? throw new ArgumentNullException(nameof(coord));
+            _evaluator = evaluator ?? throw new ArgumentNullException(nameof(evaluator));
+            _clock = clock ?? throw new ArgumentNullException(nameof(clock));
 
             _coord.OnClientEvent += (id, ev) =>
-                Events.Add(string.Format("[{0:HH:mm:ss}] {1}: {2} → {3}",
-                    DateTime.Now, id, ev.Type, ev.Payload));
+                Events.Add($"[{DateTime.Now:HH:mm:ss}] {id}: {ev.Type} → {ev.Payload}");
 
-            StartAllCommand = new RelayCommand(() => { var _ = _coord.StartAllAsync(); });
-            StopAllCommand = new RelayCommand(() => _coord.StopAll());
-            LoadConfigCommand = new RelayCommand(async () => await Load());
-            SaveConfigCommand = new RelayCommand(async () => await Save());
+            StartAllCommand = new RelayCommand(async () => await SafeStartAsync());
+            StopAllCommand = new RelayCommand(() => { _coord.StopAll(); Clients.Clear(); });
+            LoadConfigCommand = new RelayCommand(async () => await LoadAsync());
+            SaveConfigCommand = new RelayCommand(async () => await SaveAsync());
+            StartKo4FunCommand = new RelayCommand(async () => await LoadKo4FunAsync());
+            StopKo4FunCommand = new RelayCommand(() => { _coord.StopAll(); Clients.Clear(); });
         }
 
-        private async Task Load()
+        /// <summary>
+        /// Config yükle ve DummyClient’ları ekle.
+        /// </summary>
+        private async Task LoadAsync()
         {
-            Root = await _config.LoadAsync();   // PropertyChanged tetiklenir
+            Root = await _config.LoadAsync();
             Clients.Clear();
+            _coord.StopAll();
 
-            foreach (var inst in Root.instances)
+            foreach (var inst in Root.Instances)
             {
-                var client = RotationFactory.Create(inst, _evaluator, _clock);
+                var client = RotationFactory.CreateDummy(inst, _evaluator, _clock);
                 _coord.Add(client);
 
-                var vm = new ClientViewModel(inst.id);
+                var vm = new ClientViewModel(inst.Id);
                 vm.Bind(client);
                 Clients.Add(vm);
             }
         }
 
-        private async Task Save()
+        /// <summary>
+        /// Config yükle ve Ko4Fun client’ları ekle.
+        /// </summary>
+        private async Task LoadKo4FunAsync()
         {
-            if (Root == null)
-                return;
+            Root = await _config.LoadAsync();
+            Clients.Clear();
+            _coord.StopAll();
 
-            await _config.SaveAsync(Root);
+            foreach (var inst in Root.Instances)
+            {
+                var (engine, target) = RotationFactory.CreateKo4Fun(inst, _evaluator, _clock);
+                _coord.Add(engine, target);
+
+                var vm = new ClientViewModel(inst.Id);
+                Clients.Add(vm);
+            }
+
+            await SafeStartAsync();
+        }
+
+        private async Task SaveAsync()
+        {
+            if (Root != null)
+                await _config.SaveAsync(Root);
+        }
+
+        /// <summary>
+        /// StartAllAsync güvenli çağrı (TaskCanceledException yutulur).
+        /// </summary>
+        private async Task SafeStartAsync()
+        {
+            try
+            {
+                await _coord.StartAllAsync();
+            }
+            catch (TaskCanceledException)
+            {
+                // iptal normal bir durum, exception fırlatma
+            }
+        }
+
+        public void Stop()
+        {
+            _coord.StopAll();
+            Clients.Clear();
         }
 
         // INotifyPropertyChanged implementation
         public event PropertyChangedEventHandler PropertyChanged;
-
-        private void OnPropertyChanged(string propertyName)
-        {
+        private void OnPropertyChanged(string propertyName) =>
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
     }
 }

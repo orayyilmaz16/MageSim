@@ -1,23 +1,26 @@
-﻿using System;
+﻿using MageSim.Application.Services;
 using MageSim.Application.Simulation;
-using MageSim.Application.Services;
-using MageSim.Infrastructure.Config;
 using MageSim.Infrastructure.Conditions;
-using MageSim.Infrastructure.Time;     // IConditionEvaluator, IClock
+using MageSim.Infrastructure.Config;
+using MageSim.Infrastructure.Time;
+using System;
+using System.Threading.Tasks;
 
 namespace MageSim.CLI
 {
     class Program
     {
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
             Console.WriteLine("=== MageSim CLI (.NET Framework 4.8.1) ===");
             Console.WriteLine("Komutlar: start | stop | clients | load | exit");
 
             var coord = new Coordinator();
             var configService = new ConfigService("config/mage-config.json");
-            var evaluator = new DefaultConditionEvaluator(); // ✔ parametresiz
+            var evaluator = new DefaultConditionEvaluator();
             var clock = new SystemClock();
+
+            RootConfig root = null;
 
             while (true)
             {
@@ -27,7 +30,13 @@ namespace MageSim.CLI
                 switch (input)
                 {
                     case "start":
-                        coord.StartAllAsync().Wait();
+                        if (root == null || root.Instances == null || root.Instances.Count == 0)
+                        {
+                            Console.WriteLine("Önce config yükleyin (load komutu).");
+                            break;
+                        }
+
+                        await coord.StartAllAsync(); // arka planda çalıştır
                         Console.WriteLine("Simülasyon başlatıldı.");
                         break;
 
@@ -37,28 +46,37 @@ namespace MageSim.CLI
                         break;
 
                     case "clients":
-                        foreach (var client in coord.Clients)
+                        foreach (var client in coord.DummyClients)
                             Console.WriteLine($"- {client.Id}");
+
+                        foreach (var engine in coord.RotationEngines)
+                            Console.WriteLine($"- RotationEngine ({engine.GetHashCode()})");
                         break;
 
                     case "load":
-                        var root = configService.LoadAsync().Result;
+                        root = configService.LoadAsync().Result;
                         coord.StopAll();
-                        if (root?.instances != null)
+
+                        if (root?.Instances != null)
                         {
-                            foreach (var inst in root.instances) // inst artık InstanceConfig tipinde
+                            foreach (var inst in root.Instances)
                             {
-                                var client = RotationFactory.Create(inst, evaluator, clock);
-                                coord.Add(client);
+                                // Burada hangi client tipini kullanacağınızı seçebilirsiniz:
+                                // DummyClient için:
+                                var dummy = RotationFactory.CreateDummy(inst, evaluator, clock);
+                                coord.Add(dummy);
+
+                                // Eğer Ko4Fun entegrasyonu kullanmak istiyorsanız:
+                                // var (engine, target) = RotationFactory.CreateKo4Fun(inst, evaluator, clock);
+                                // coord.Add(engine, target);
                             }
+
+                            Console.WriteLine("Config yüklendi ve client’lar eklendi.");
                         }
                         else
                         {
                             Console.WriteLine("Config içinde instance bulunamadı.");
                         }
-
-
-                        Console.WriteLine("Config yüklendi ve client’lar eklendi.");
                         break;
 
                     case "exit":

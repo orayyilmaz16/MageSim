@@ -32,17 +32,24 @@ namespace MageSim.Domain.Skills
         {
             if (ctx == null) throw new ArgumentNullException(nameof(ctx));
 
-            while (!ct.IsCancellationRequested)
+            try
             {
-                Step(ctx);
+                while (!ct.IsCancellationRequested)
+                {
+                    Step(ctx);
 
-                // jitter negatif olursa toplam süreyi sıfırdan küçük yapma
-                var jitterMs = _rng.Next(-25, 35);
-                var delay = _tickInterval + TimeSpan.FromMilliseconds(jitterMs);
-                if (delay < TimeSpan.Zero) delay = TimeSpan.Zero;
+                    var jitterMs = _rng.Next(-25, 35);
+                    var delay = _tickInterval + TimeSpan.FromMilliseconds(jitterMs);
+                    if (delay < TimeSpan.Zero) delay = TimeSpan.Zero;
 
-                await _clock.Delay(delay, ct);
+                    await _clock.Delay(delay, ct);
+                }
             }
+            catch (TaskCanceledException)
+            {
+                // iptal normal bir durum, exception fırlatma
+            }
+
         }
 
         public void Step(CombatContext ctx)

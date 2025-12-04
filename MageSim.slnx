@@ -7,6 +7,7 @@
     <Project Path="MageSim.CLI/MageSim.CLI.csproj" Id="f2cbb235-7171-42c1-867c-98e1e9658410" />
     <Project Path="MageSim.Domain/MageSim.Domain.csproj" Id="0427ef67-a9bf-42bf-a7f6-3530d7eb3647" />
     <Project Path="MageSim.Infrastructure/MageSim.Infrastructure.csproj" Id="86d6ac0e-4541-4b0e-8748-176e87843a00" />
+    <Project Path="MageSim.Integration/MageSim.Integration.csproj" Id="7125716f-f807-4d68-b3fa-8568c771a9d2" />
     <Project Path="MageSim.Presentation/MageSim.Presentation.csproj" Id="1baa7cb4-5505-48a0-b741-74a8e8ad7667" />
     <Project Path="MageSim.Tests/MageSim.Tests.csproj" Id="806bb362-485c-4980-a9e1-93b8a25da87d" />
   </Folder>

@@ -25,7 +25,7 @@ namespace MageSim.Tests.Infrastructure
 
             // Assert
             config.Should().NotBeNull();
-            config.instances.Should().BeEmpty();
+            config.Instances.Should().BeEmpty();
         }
 
         [Fact]
@@ -37,25 +37,25 @@ namespace MageSim.Tests.Infrastructure
 
             var root = new RootConfig
             {
-                instances = new List<InstanceConfig>
+                Instances = new List<InstanceConfig>
                 {
                     new InstanceConfig
                     {
-                        id = "Mage1",
-                        tickMs = 100,
-                        skills = new List<SkillConfig>
+                        Id = "Mage1",
+                        TickMs = 100,
+                        Skills = new List<SkillConfig>
                         {
-                            new SkillConfig { name = "Fireball", key = "F", cdMs = 1500, mana = 50, condition = "TargetAlive" },
-                            new SkillConfig { name = "Frostbolt", key = "R", cdMs = 2000, mana = 40, condition = "TargetInRange" }
+                            new SkillConfig { Name = "Fireball", Key = "F", CdMs = 1500, Mana = 50, Condition = "TargetAlive" },
+                            new SkillConfig { Name = "Frostbolt", Key = "R", CdMs = 2000, Mana = 40, Condition = "TargetInRange" }
                         }
                     },
                     new InstanceConfig
                     {
-                        id = "Mage2",
-                        tickMs = 120,
-                        skills = new List<SkillConfig>
+                        Id = "Mage2",
+                        TickMs = 120,
+                        Skills = new List<SkillConfig>
                         {
-                            new SkillConfig { name = "Arcane Blast", key = "A", cdMs = 1000, mana = 30, condition = "Mana>30" }
+                            new SkillConfig { Name = "Arcane Blast", Key = "A", CdMs = 1000, Mana = 30, Condition = "Mana>30" }
                         }
                     }
                 }
@@ -67,11 +67,11 @@ namespace MageSim.Tests.Infrastructure
 
             // Assert
             loaded.Should().NotBeNull();
-            loaded.instances.Should().HaveCount(2);
-            loaded.instances[0].id.Should().Be("Mage1");
-            loaded.instances[0].skills.Should().ContainSingle(s => s.name == "Fireball");
-            loaded.instances[1].id.Should().Be("Mage2");
-            loaded.instances[1].skills.Should().ContainSingle(s => s.name == "Arcane Blast");
+            loaded.Instances.Should().HaveCount(2);
+            loaded.Instances[0].Id.Should().Be("Mage1");
+            loaded.Instances[0].Skills.Should().ContainSingle(s => s.Name == "Fireball");
+            loaded.Instances[1].Id.Should().Be("Mage2");
+            loaded.Instances[1].Skills.Should().ContainSingle(s => s.Name == "Arcane Blast");
         }
 
         [Fact]

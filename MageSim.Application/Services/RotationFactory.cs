@@ -1,25 +1,54 @@
-﻿using MageSim.Application.Simulation;
+﻿using System;
+using System.Linq;
+using System.Collections.Generic;
 using MageSim.Domain.Abstractions;
 using MageSim.Domain.Skills;
 using MageSim.Infrastructure.Config;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using MageSim.Application.Simulation;
+using MageSim.Integration.Window;
+using MageSim.Integration.Adapters;
 
 namespace MageSim.Application.Services
 {
     // MageSim.Application/Services/RotationFactory.cs
     public static class RotationFactory
     {
-        public static DummyClient Create(InstanceConfig cfg, IConditionEvaluator evaluator, IClock clock)
+        /// <summary>
+        /// DummyClient oluşturur (test/simülasyon için).
+        /// </summary>
+        public static DummyClient CreateDummy(InstanceConfig cfg, IConditionEvaluator evaluator, IClock clock)
         {
-            var skills = cfg.skills.Select(s =>
-                new Skill(s.name, s.key, TimeSpan.FromMilliseconds(s.cdMs), s.mana, s.condition)).ToList();
+            var skills = cfg.Skills.Select(s =>
+                new Skill(s.Name, s.Key, TimeSpan.FromMilliseconds(s.CdMs), s.Mana, s.Condition)).ToList();
 
-            return new DummyClient(cfg.id, skills, TimeSpan.FromMilliseconds(cfg.tickMs), evaluator, clock);
+            return new DummyClient(cfg.Id, skills, TimeSpan.FromMilliseconds(cfg.TickMs), evaluator, clock);
+        }
+
+        /// <summary>
+        /// Ko4Fun entegrasyonu için RotationEngine + IRotationTarget döndürür.
+        /// </summary>
+        public static (RotationEngine engine, IRotationTarget target) CreateKo4Fun(
+            InstanceConfig cfg, IConditionEvaluator eval, IClock clock)
+        {
+            var skills = cfg.Skills.Select(s => new Skill(
+                s.Name, s.Key, TimeSpan.FromMilliseconds(s.CdMs), s.Mana, s.Condition)).ToList();
+
+            // RotationEngine constructor: (skills, tickInterval, evaluator, clock)
+            var engine = new RotationEngine(skills, TimeSpan.FromMilliseconds(cfg.TickMs), eval, clock);
+
+            IntPtr hWnd = IntPtr.Zero;
+            if (cfg.Window != null)
+            {
+                if (!string.IsNullOrWhiteSpace(cfg.Window.TitleContains))
+                    hWnd = WindowFinder.FindByTitleContains(cfg.Window.TitleContains);
+                if (hWnd == IntPtr.Zero && !string.IsNullOrWhiteSpace(cfg.Window.ProcessName))
+                    hWnd = WindowFinder.FindByProcess(cfg.Window.ProcessName, cfg.Window.ProcessIndex ?? 0);
+            }
+
+            var client = new Ko4FunClient(hWnd);
+            var target = new Ko4FunRotationTarget(client);
+
+            return (engine, target);
         }
     }
-
 }

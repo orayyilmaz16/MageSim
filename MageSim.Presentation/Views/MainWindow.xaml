@@ -47,7 +47,9 @@
             <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
                 <Button Content="Load Config" Command="{Binding LoadConfigCommand}" Margin="0,0,8,0"/>
                 <Button Content="Start All" Command="{Binding StartAllCommand}" Margin="0,0,8,0"/>
-                <Button Content="Stop All" Command="{Binding StopAllCommand}" />
+                <Button Content="Stop All" Command="{Binding StopAllCommand}" Margin="0,0,8,0" />
+                <Button Content="Start Macro (Ko4Fun)" Command="{Binding StartKo4FunCommand}" Margin="0,0,8,0"/>
+                <Button Content="Stop Macro (Ko4Fun)" Command="{Binding StopKo4FunCommand}" Margin="0,0,8,0"/>
             </StackPanel>
         </StackPanel>
     </Grid>

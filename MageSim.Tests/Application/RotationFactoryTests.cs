@@ -3,6 +3,7 @@ using MageSim.Application.Services;
 using MageSim.Domain.Abstractions;
 using MageSim.Domain.Skills;
 using MageSim.Infrastructure.Config;
+using MageSim.Integration.Adapters;
 
 namespace MageSim.Tests.Application
 {
@@ -22,25 +23,25 @@ namespace MageSim.Tests.Application
     public class RotationFactoryTests
     {
         [Fact]
-        public void Create_ShouldReturnDummyClientWithCorrectProperties()
+        public void CreateDummy_ShouldReturnDummyClientWithCorrectProperties()
         {
             // Arrange: InstanceConfig tanımı
             var cfg = new InstanceConfig
             {
-                id = "Mage1",
-                tickMs = 150,
-                skills = new List<SkillConfig>
+                Id = "Mage1",
+                TickMs = 150,
+                Skills = new List<SkillConfig>
                 {
-                    new SkillConfig { name = "Fireball", key = "F", cdMs = 1000, mana = 50, condition = "alive&range&mana>=50" },
-                    new SkillConfig { name = "Frostbolt", key = "R", cdMs = 1200, mana = 40, condition = "alive&range&mana>=40" }
+                    new SkillConfig { Name = "Fireball", Key = "F", CdMs = 1000, Mana = 50, Condition = "alive&range&mana>=50" },
+                    new SkillConfig { Name = "Frostbolt", Key = "R", CdMs = 1200, Mana = 40, Condition = "alive&range&mana>=40" }
                 }
             };
 
             var evaluator = new AlwaysTrueEvaluator();
             var clock = new FakeClock();
 
-            // Act: RotationFactory kullanımı
-            var client = RotationFactory.Create(cfg, evaluator, clock);
+            // Act: RotationFactory kullanımı (DummyClient)
+            var client = RotationFactory.CreateDummy(cfg, evaluator, clock);
 
             // Assert: DummyClient özellikleri doğru mu?
             client.Should().NotBeNull();
@@ -60,6 +61,47 @@ namespace MageSim.Tests.Application
             frostbolt.ManaCost.Should().Be(40);
             frostbolt.Cooldown.Should().Be(TimeSpan.FromMilliseconds(1200));
             frostbolt.ConditionDsl.Should().Be("alive&range&mana>=40");
+        }
+
+        [Fact]
+        public void CreateKo4Fun_ShouldReturnEngineAndTarget()
+        {
+            // Arrange: InstanceConfig tanımı
+            var cfg = new InstanceConfig
+            {
+                Id = "Mage2",
+                TickMs = 200,
+                Skills = new List<SkillConfig>
+                {
+                    new SkillConfig { Name = "Nova", Key = "D1", CdMs = 1500, Mana = 100, Condition = "alive&range&mana>=100" }
+                },
+                Window = new WindowSelector
+                {
+                    TitleContains = "FakeWindow" // test için sahte değer
+                }
+            };
+
+            var evaluator = new AlwaysTrueEvaluator();
+            var clock = new FakeClock();
+
+            // Act: RotationFactory kullanımı (Ko4Fun entegrasyonu)
+            var (engine, target) = RotationFactory.CreateKo4Fun(cfg, evaluator, clock);
+
+            // Assert: Engine ve Target doğru mu?
+            engine.Should().NotBeNull();
+            target.Should().NotBeNull();
+
+            // Engine skill listesi kontrolü
+            var skill = engine.GetType()
+                              .GetField("_priority", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
+                              ?.GetValue(engine) as List<Skill>;
+
+            skill.Should().NotBeNull();
+            skill.Should().HaveCount(1);
+            skill[0].Name.Should().Be("Nova");
+            skill[0].Key.Should().Be("D1");
+            skill[0].ManaCost.Should().Be(100);
+            skill[0].Cooldown.Should().Be(TimeSpan.FromMilliseconds(1500));
         }
     }
 }

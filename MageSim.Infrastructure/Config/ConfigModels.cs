@@ -6,24 +6,32 @@ namespace MageSim.Infrastructure.Config
     // MageSim.Infrastructure/Config/ConfigModels.cs
     public sealed class SkillConfig
     {
-        public string name { get; set; } = string.Empty;
-        public string key { get; set; } = string.Empty;
-        public int cdMs { get; set; }
-        public int mana { get; set; }
-        public string condition { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+        public string Key { get; set; } = string.Empty;
+        public int CdMs { get; set; }
+        public int Mana { get; set; }
+        public string Condition { get; set; } = string.Empty;
     }
 
     public sealed class InstanceConfig
     {
-        public string id { get; set; } = string.Empty;
-        public int tickMs { get; set; }
-        // target-typed new() yerine açık tip kullanımı
-        public List<SkillConfig> skills { get; set; } = new List<SkillConfig>();
+        public string Id { get; set; } = string.Empty;
+        public int TickMs { get; set; }
+        public WindowSelector Window { get; set; }
+        public List<SkillConfig> Skills { get; set; } = new List<SkillConfig>();
+    }
+
+    public sealed class WindowSelector
+    {
+        public string TitleContains { get; set; }
+        public string ClassName { get; set; }
+        public string ProcessName { get; set; }
+        public int? ProcessIndex { get; set; }
     }
 
     public sealed class RootConfig
     {
         // yine açık tip kullanımı
-        public List<InstanceConfig> instances { get; set; } = new List<InstanceConfig>();
+        public List<InstanceConfig> Instances { get; set; } = new List<InstanceConfig>();
     }
 }

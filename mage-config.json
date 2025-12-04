@@ -3,6 +3,10 @@
     {
       "id": "Mage-A",
       "tickMs": 140,
+      "window": {
+        "titleContains": "Ko4Fun - MageA",
+        "processName": "ko4fun"
+      },
       "skills": [
         {
           "name": "Nova",

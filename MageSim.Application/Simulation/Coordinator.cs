@@ -1,4 +1,6 @@
 ﻿using MageSim.Domain.Events;
+using MageSim.Domain.Skills;
+using MageSim.Integration.Adapters;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,56 +9,88 @@ using System.Threading.Tasks;
 
 namespace MageSim.Application.Simulation
 {
-    // MageSim.Application/Simulation/Coordinator.cs
     public sealed class Coordinator
     {
-        // target-typed new() yerine açık tip kullanımı
-        private readonly List<DummyClient> _clients = new List<DummyClient>();
+        private readonly List<DummyClient> _dummyClients = new List<DummyClient>();
+
+        private sealed class RotationClient
+        {
+            public RotationEngine Engine { get; }
+            public IRotationTarget Target { get; }
+
+            public RotationClient(RotationEngine engine, IRotationTarget target)
+            {
+                Engine = engine;
+                Target = target;
+            }
+        }
+
+        private readonly List<RotationClient> _rotationClients = new List<RotationClient>();
         private CancellationTokenSource _cts;
 
-        // nullable reference tip yerine klasik event tanımı
         public event Action<string, CombatEvent> OnClientEvent;
 
+        // DummyClient ekleme
         public void Add(DummyClient client)
         {
             client.Context.OnEvent += ev =>
             {
-                var handler = OnClientEvent;
-                if (handler != null)
-                {
-                    handler(client.Id, ev);
-                }
+                OnClientEvent?.Invoke(client.Id, ev);
             };
-            _clients.Add(client);
+            _dummyClients.Add(client);
         }
 
+        // RotationEngine ekleme
+        public void Add(RotationEngine engine, IRotationTarget target)
+        {
+            _rotationClients.Add(new RotationClient(engine, target));
+        }
+
+        public void AddClient(RotationEngine engine, IRotationTarget target) => Add(engine, target);
+
+        /// <summary>
+        /// Tüm client'ları başlatır.
+        /// </summary>
         public async Task StartAllAsync()
         {
-            _cts = new CancellationTokenSource();
-            var tasks = _clients.Select(c => c.StartAsync(_cts.Token));
-            await Task.WhenAll(tasks);
+            // RotationEngine'leri başlat (RunAsync ile)
+            foreach (var rc in _rotationClients)
+            {
+                var ctx = new CombatContext(); // her engine için yeni context
+                _ = Task.Run(() => rc.Engine.RunAsync(ctx, CancellationToken.None));
+            }
+
+            // DummyClient'leri başlat
+            if (_dummyClients.Count > 0)
+            {
+                _cts?.Cancel();
+                _cts = new CancellationTokenSource();
+
+                var tasks = _dummyClients.Select(c => c.StartAsync(_cts.Token));
+                await Task.WhenAll(tasks);
+            }
         }
 
         public void StopAll()
         {
-            if (_cts != null)
-            {
-                _cts.Cancel();
-                _cts = null;
-            }
+            // DummyClient iptal
+            _cts?.Cancel();
+            _cts = null;
+
+            // RotationEngine için özel Stop yok → CancellationToken ile kontrol edilmeli
+            // Eğer RotationEngine'e Stop eklemek istiyorsan, RunAsync içinde ct kontrolü zaten var.
+            // Burada ct iptal edilirse Task kendiliğinden durur.
         }
 
         public void Broadcast(string message)
         {
-            foreach (var c in _clients)
+            foreach (var client in _dummyClients)
             {
-                c.Context.Emit(new CombatEvent(CombatEventType.Warning, message));
+                client.Context.Emit(new CombatEvent(CombatEventType.Warning, message));
             }
         }
 
-        public IEnumerable<DummyClient> Clients
-        {
-            get { return _clients; }
-        }
+        public IEnumerable<DummyClient> DummyClients => _dummyClients;
+        public IEnumerable<RotationEngine> RotationEngines => _rotationClients.Select(x => x.Engine);
     }
 }

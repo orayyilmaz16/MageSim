@@ -1,12 +1,15 @@
 ﻿using FluentAssertions;
 using MageSim.Application.Simulation;
+using MageSim.Application.Services;
 using MageSim.Domain.Events;
 using MageSim.Domain.Skills;
 using MageSim.Domain.States;
+using MageSim.Integration.Adapters;
+using MageSim.Infrastructure.Conditions;
+using MageSim.Infrastructure.Time;
 
 namespace MageSim.Tests.Application
 {
- 
     public class CoordinatorTests
     {
         private DummyClient CreateDummyClient(string id)
@@ -27,7 +30,7 @@ namespace MageSim.Tests.Application
         }
 
         [Fact]
-        public void Add_ShouldRegisterClientAndRaiseEvents()
+        public void Add_ShouldRegisterDummyClientAndRaiseEvents()
         {
             var coordinator = new Coordinator();
             var client = CreateDummyClient("Mage1");
@@ -53,7 +56,7 @@ namespace MageSim.Tests.Application
         }
 
         [Fact]
-        public void Broadcast_ShouldEmitWarningEventToAllClients()
+        public void Broadcast_ShouldEmitWarningEventToAllDummyClients()
         {
             var coordinator = new Coordinator();
             var client1 = CreateDummyClient("Mage1");
@@ -80,7 +83,7 @@ namespace MageSim.Tests.Application
         }
 
         [Fact]
-        public async Task StartAllAsync_ShouldRunClients()
+        public async Task StartAllAsync_ShouldRunDummyClients()
         {
             var coordinator = new Coordinator();
             var client = CreateDummyClient("Mage1");
@@ -95,7 +98,7 @@ namespace MageSim.Tests.Application
         }
 
         [Fact]
-        public void ClientsProperty_ShouldReturnAddedClients()
+        public void DummyClientsProperty_ShouldReturnAddedClients()
         {
             var coordinator = new Coordinator();
             var client1 = CreateDummyClient("Mage1");
@@ -104,8 +107,29 @@ namespace MageSim.Tests.Application
             coordinator.Add(client1);
             coordinator.Add(client2);
 
-            coordinator.Clients.Should().Contain(client1);
-            coordinator.Clients.Should().Contain(client2);
+            coordinator.DummyClients.Should().Contain(client1);
+            coordinator.DummyClients.Should().Contain(client2);
+        }
+
+        [Fact]
+        public void AddKo4FunClient_ShouldRegisterRotationEngine()
+        {
+            var coordinator = new Coordinator();
+
+            // Basit skill listesi
+            var skills = new List<Skill>
+            {
+                new Skill("Nova", "D1", TimeSpan.FromMilliseconds(1500), 100, "alive&range&mana>=100")
+            };
+
+            var engine = new RotationEngine(skills, TimeSpan.FromMilliseconds(100),
+                new AlwaysTrueEvaluator(), new FakeClock());
+
+            var target = new Ko4FunRotationTarget(new Ko4FunClient(IntPtr.Zero));
+
+            coordinator.Add(engine, target);
+
+            coordinator.RotationEngines.Should().Contain(engine);
         }
     }
 }
