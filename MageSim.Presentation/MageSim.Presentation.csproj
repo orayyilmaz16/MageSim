@@ -39,6 +39,7 @@
 		<ProjectReference Include="..\MageSim.Application\MageSim.Application.csproj" />
 		<ProjectReference Include="..\MageSim.Domain\MageSim.Domain.csproj" />
 		<ProjectReference Include="..\MageSim.Infrastructure\MageSim.Infrastructure.csproj" />
+		<ProjectReference Include="..\MageSim.Integration\MageSim.Integration.csproj" />
 	</ItemGroup>
 
 </Project>

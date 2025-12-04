@@ -1,116 +1,116 @@
 {
-  "instances": [
+  "Instances": [
     {
-      "id": "dayıbunlartop",
-      "tickMs": 140,
-      "window": {
+      "Id": "dayıbunlartop",
+      "TickMs": 140,
+      "Window": {
         "titleContains": "Ko4Fun - dayıbunlartop",
         "processName": "ko4fun"
       },
-      "skills": [
+      "Skills": [
         {
-          "name": "Nova",
-          "key": "D1",
-          "cdMs": 15000,
-          "mana": 300,
-          "condition": "alive&range&mana>=300"
+          "Name": "Nova",
+          "Key": "D1",
+          "CdMs": 15000,
+          "Mana": 300,
+          "Condition": "alive&range&mana>=300"
         },
         {
-          "name": "Meteor",
-          "key": "D2",
-          "cdMs": 8000,
-          "mana": 200,
-          "condition": "alive&range&mana>=200"
+          "Name": "Meteor",
+          "Key": "D2",
+          "CdMs": 8000,
+          "Mana": 200,
+          "Condition": "alive&range&mana>=200"
         },
         {
-          "name": "Inferno",
-          "key": "D3",
-          "cdMs": 5000,
-          "mana": 120,
-          "condition": "alive&range&mana>=120"
+          "Name": "Inferno",
+          "Key": "D3",
+          "CdMs": 5000,
+          "Mana": 120,
+          "Condition": "alive&range&mana>=120"
         },
         {
-          "name": "Blizzard",
-          "key": "D9",
-          "cdMs": 20000,
-          "mana": 250,
-          "condition": "alive&range&mana>=250"
+          "Name": "Blizzard",
+          "Key": "D9",
+          "CdMs": 20000,
+          "Mana": 250,
+          "Condition": "alive&range&mana>=250"
         }
       ]
     },
     {
-      "id": "trasatesediyoraq",
-      "tickMs": 140,
-      "window": {
+      "Id": "trasatesediyoraq",
+      "TickMs": 140,
+      "Window": {
         "titleContains": "Ko4Fun - trasatesediyoraq",
         "processName": "ko4fun"
       },
-      "skills": [
+      "Skills": [
         {
-          "name": "Nova",
-          "key": "D1",
-          "cdMs": 15000,
-          "mana": 300,
-          "condition": "alive&range&mana>=300"
+          "Name": "Nova",
+          "Key": "D1",
+          "CdMs": 15000,
+          "Mana": 300,
+          "Condition": "alive&range&mana>=300"
         },
         {
-          "name": "Meteor",
-          "key": "D2",
-          "cdMs": 8000,
-          "mana": 200,
-          "condition": "alive&range&mana>=200"
+          "Name": "Meteor",
+          "Key": "D2",
+          "CdMs": 8000,
+          "Mana": 200,
+          "Condition": "alive&range&mana>=200"
         },
         {
-          "name": "Inferno",
-          "key": "D3",
-          "cdMs": 5000,
-          "mana": 120,
-          "condition": "alive&range&mana>=120"
+          "Name": "Inferno",
+          "Key": "D3",
+          "CdMs": 5000,
+          "Mana": 120,
+          "Condition": "alive&range&mana>=120"
         },
         {
-          "name": "Blizzard",
-          "key": "D9",
-          "cdMs": 20000,
-          "mana": 250,
-          "condition": "alive&range&mana>=250"
+          "Name": "Blizzard",
+          "Key": "D9",
+          "CdMs": 20000,
+          "Mana": 250,
+          "Condition": "alive&range&mana>=250"
         }
       ]
     },
     {
-      "id": "Canavaraq",
-      "tickMs": 140,
-      "window": {
+      "Id": "Canavaraq",
+      "TickMs": 140,
+      "Window": {
         "titleContains": "Ko4Fun - Canavaraq",
         "processName": "ko4fun"
       },
-      "skills": [
+      "Skills": [
         {
-          "name": "Nova",
-          "key": "D1",
-          "cdMs": 15000,
-          "mana": 300,
-          "condition": "alive&range&mana>=300"
+          "Name": "Nova",
+          "Key": "D1",
+          "CdMs": 15000,
+          "Mana": 300,
+          "Condition": "alive&range&mana>=300"
         },
         {
-          "name": "Meteor",
-          "key": "D2",
-          "cdMs": 8000,
-          "mana": 200,
-          "condition": "alive&range&mana>=200"
+          "Name": "Meteor",
+          "Key": "D2",
+          "CdMs": 8000,
+          "Mana": 200,
+          "Condition": "alive&range&mana>=200"
         },
         {
-          "name": "Inferno",
-          "key": "D3",
-          "cdMs": 5000,
-          "mana": 120,
-          "condition": "alive&range&mana>=120"
+          "Name": "Inferno",
+          "Key": "D3",
+          "CdMs": 5000,
+          "Mana": 120,
+          "Condition": "alive&range&mana>=120"
         },
         {
-          "name": "Blizzard",
-          "key": "D9",
-          "cdMs": 20000,
-          "mana": 250,
-          "condition": "alive&range&mana>=250"
+          "Name": "Blizzard",
+          "Key": "D9",
+          "CdMs": 20000,
+          "Mana": 250,
+          "Condition": "alive&range&mana>=250"
         }
       ]
     }

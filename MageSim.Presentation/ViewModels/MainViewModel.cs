@@ -3,6 +3,8 @@ using MageSim.Application.Simulation;
 using MageSim.Domain.Abstractions;
 using MageSim.Infrastructure.Config;
 using MageSim.Presentation.Commands;
+using MageSim.Integration; // Ko4Fun entegrasyonu
+using MageSim.Domain.Skills;
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -22,6 +24,7 @@ namespace MageSim.Presentation.ViewModels
         public ICommand SaveConfigCommand { get; }
         public ICommand StartKo4FunCommand { get; }
         public ICommand StopKo4FunCommand { get; }
+        public ICommand RunMacroCommand { get; }
 
         private readonly ConfigService _config;
         private readonly Coordinator _coord;
@@ -52,12 +55,17 @@ namespace MageSim.Presentation.ViewModels
             _coord.OnClientEvent += (id, ev) =>
                 Events.Add($"[{DateTime.Now:HH:mm:ss}] {id}: {ev.Type} → {ev.Payload}");
 
-            StartAllCommand = new RelayCommand(async () => await SafeStartAsync());
-            StopAllCommand = new RelayCommand(() => { _coord.StopAll(); Clients.Clear(); });
-            LoadConfigCommand = new RelayCommand(async () => await LoadAsync());
-            SaveConfigCommand = new RelayCommand(async () => await SaveAsync());
-            StartKo4FunCommand = new RelayCommand(async () => await LoadKo4FunAsync());
-            StopKo4FunCommand = new RelayCommand(() => { _coord.StopAll(); Clients.Clear(); });
+          
+
+            StartAllCommand = new RelayCommand(async _ => await SafeStartAsync());
+            StopAllCommand = new RelayCommand(_ => Stop());
+            LoadConfigCommand = new RelayCommand(async _ => await LoadAsync());
+            SaveConfigCommand = new RelayCommand(async _ => await SaveAsync());
+            StartKo4FunCommand = new RelayCommand(async _ => await LoadKo4FunAsync());
+            StopKo4FunCommand = new RelayCommand(_ => Stop());
+            RunMacroCommand = new RelayCommand<string>(async macro => await RunMacroAsync(macro));
+
+           
         }
 
         /// <summary>
@@ -81,7 +89,7 @@ namespace MageSim.Presentation.ViewModels
         }
 
         /// <summary>
-        /// Config yükle ve Ko4Fun client’ları ekle.
+        /// Config yükle ve Ko4Fun client’ları topluca ekle.
         /// </summary>
         private async Task LoadKo4FunAsync()
         {
@@ -101,15 +109,47 @@ namespace MageSim.Presentation.ViewModels
             await SafeStartAsync();
         }
 
+        /// <summary>
+        /// Macro çalıştırma: belirli senaryolar için toplu client başlatma.
+        /// </summary>
+        private async Task RunMacroAsync(string macro)
+        {
+            if (Root == null) return;
+
+            Clients.Clear();
+            _coord.StopAll();
+
+            foreach (var inst in Root.Instances)
+            {
+                var (engine, target) = RotationFactory.CreateKo4Fun(inst, _evaluator, _clock);
+
+                switch (macro?.ToLower())
+                {
+                    case "fast-rotation":
+                        engine.Configure(new EngineOptions { SpeedMultiplier = 2.0 });
+                        break;
+                    case "safe-mode":
+                        engine.Configure(new EngineOptions { ErrorTolerance = true });
+                        break;
+                    case "debug":
+                        engine.Configure(new EngineOptions { VerboseLogging = true });
+                        break;
+                }
+
+                _coord.Add(engine, target);
+                Clients.Add(new ClientViewModel(inst.Id));
+            }
+
+            await SafeStartAsync();
+            Events.Add($"Macro '{macro}' çalıştırıldı ({Clients.Count} client).");
+        }
+
         private async Task SaveAsync()
         {
             if (Root != null)
                 await _config.SaveAsync(Root);
         }
 
-        /// <summary>
-        /// StartAllAsync güvenli çağrı (TaskCanceledException yutulur).
-        /// </summary>
         private async Task SafeStartAsync()
         {
             try
@@ -118,7 +158,7 @@ namespace MageSim.Presentation.ViewModels
             }
             catch (TaskCanceledException)
             {
-                // iptal normal bir durum, exception fırlatma
+                // iptal normal bir durum
             }
         }
 
@@ -128,7 +168,6 @@ namespace MageSim.Presentation.ViewModels
             Clients.Clear();
         }
 
-        // INotifyPropertyChanged implementation
         public event PropertyChangedEventHandler PropertyChanged;
         private void OnPropertyChanged(string propertyName) =>
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));

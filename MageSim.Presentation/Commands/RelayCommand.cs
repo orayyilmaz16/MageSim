@@ -3,38 +3,46 @@ using System.Windows.Input;
 
 namespace MageSim.Presentation.Commands
 {
-    // MageSim.Presentation/Commands/RelayCommand.cs
-    public sealed class RelayCommand : ICommand
+    public class RelayCommand : ICommand
     {
-        private readonly Action _execute;
-        private readonly Func<bool> _canExecute;
+        private readonly Action<object> _execute;
+        private readonly Func<object, bool> _canExecute;
 
-        public RelayCommand(Action execute, Func<bool> canExecute = null)
+        public RelayCommand(Action<object> execute, Func<object, bool> canExecute = null)
         {
-            if (execute == null) throw new ArgumentNullException(nameof(execute));
-            _execute = execute;
+            _execute = execute ?? throw new ArgumentNullException(nameof(execute));
             _canExecute = canExecute;
         }
 
-        public event EventHandler CanExecuteChanged;
+        public bool CanExecute(object parameter) => _canExecute?.Invoke(parameter) ?? true;
+        public void Execute(object parameter) => _execute(parameter);
 
-        public bool CanExecute(object parameter)
+        public event EventHandler CanExecuteChanged
         {
-            return _canExecute == null ? true : _canExecute();
+            add => CommandManager.RequerySuggested += value;
+            remove => CommandManager.RequerySuggested -= value;
+        }
+    }
+
+    // Generic versiyon
+    public class RelayCommand<T> : ICommand
+    {
+        private readonly Action<T> _execute;
+        private readonly Func<T, bool> _canExecute;
+
+        public RelayCommand(Action<T> execute, Func<T, bool> canExecute = null)
+        {
+            _execute = execute ?? throw new ArgumentNullException(nameof(execute));
+            _canExecute = canExecute;
         }
 
-        public void Execute(object parameter)
-        {
-            _execute();
-        }
+        public bool CanExecute(object parameter) => _canExecute?.Invoke((T)parameter) ?? true;
+        public void Execute(object parameter) => _execute((T)parameter);
 
-        public void RaiseCanExecuteChanged()
+        public event EventHandler CanExecuteChanged
         {
-            var handler = CanExecuteChanged;
-            if (handler != null)
-            {
-                handler(this, EventArgs.Empty);
-            }
+            add => CommandManager.RequerySuggested += value;
+            remove => CommandManager.RequerySuggested -= value;
         }
     }
 }

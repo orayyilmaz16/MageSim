@@ -16,6 +16,8 @@ namespace MageSim.Domain.Skills
         private readonly IClock _clock;
         private readonly Random _rng = new Random();
 
+        private EngineOptions _options = new EngineOptions();
+
         public RotationEngine(
             List<Skill> skills,
             TimeSpan tickInterval,
@@ -26,6 +28,14 @@ namespace MageSim.Domain.Skills
             _tickInterval = tickInterval;
             _evaluator = evaluator ?? throw new ArgumentNullException(nameof(evaluator));
             _clock = clock ?? throw new ArgumentNullException(nameof(clock));
+        }
+
+        /// <summary>
+        /// Opsiyonları ayarla.
+        /// </summary>
+        public void Configure(EngineOptions options)
+        {
+            _options = options ?? new EngineOptions();
         }
 
         public async Task RunAsync(CombatContext ctx, CancellationToken ct)
@@ -40,16 +50,30 @@ namespace MageSim.Domain.Skills
 
                     var jitterMs = _rng.Next(-25, 35);
                     var delay = _tickInterval + TimeSpan.FromMilliseconds(jitterMs);
+
+                    // SpeedMultiplier uygula
+                    if (_options.SpeedMultiplier != 1.0)
+                        delay = TimeSpan.FromMilliseconds(delay.TotalMilliseconds / _options.SpeedMultiplier);
+
                     if (delay < TimeSpan.Zero) delay = TimeSpan.Zero;
 
                     await _clock.Delay(delay, ct);
+
+                    if (_options.VerboseLogging)
+                        ctx.Emit(new CombatEvent(CombatEventType.Info, $"Tick @ {DateTime.Now:HH:mm:ss}"));
                 }
             }
             catch (TaskCanceledException)
             {
-                // iptal normal bir durum, exception fırlatma
+                if (_options.ErrorTolerance)
+                {
+                    // iptal normal → swallow
+                }
+                else
+                {
+                    throw;
+                }
             }
-
         }
 
         public void Step(CombatContext ctx)

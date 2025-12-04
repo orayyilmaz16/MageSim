@@ -63,6 +63,10 @@
       <Project>{86D6AC0E-4541-4B0E-8748-176E87843A00}</Project>
       <Name>MageSim.Infrastructure</Name>
     </ProjectReference>
+    <ProjectReference Include="..\MageSim.Integration\MageSim.Integration.csproj">
+      <Project>{7125716f-f807-4d68-b3fa-8568c771a9d2}</Project>
+      <Name>MageSim.Integration</Name>
+    </ProjectReference>
     <ProjectReference Include="..\MageSim.Presentation\MageSim.Presentation.csproj">
       <Project>{1baa7cb4-5505-48a0-b741-74a8e8ad7667}</Project>
       <Name>MageSim.Presentation</Name>
